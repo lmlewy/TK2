@@ -1,0 +1,109 @@
+    Private Sub ButtonSelectDatabase2_Click(sender As Object, e As EventArgs) Handles ButtonSelectDatabase2.Click
+
+        Dim openFileDialog1 As New OpenFileDialog()
+        Dim iResult As DialogResult
+        openFileDialog1.Title = "Podaj plik bazy danych"
+        openFileDialog1.Filter = "SDF Files (*.sdf) | *.sdf"
+
+        openFileDialog1.CheckFileExists = True
+        iResult = openFileDialog1.ShowDialog()
+
+        If iResult <> Windows.Forms.DialogResult.Cancel And openFileDialog1.FileName.Length <> 0 Then
+
+            Dim sConStr As String
+            sConStr = "Data Source=" & openFileDialog1.FileName & "; Persist Security Info=False" 'zwraca "Data Source=C:\TK2\Komis_2\Komis\Komis\bin\Debug\salonJaponski.sdf; Persist Security Info=False"
+
+            dbConnection = New SqlCeConnection(sConStr)
+
+            'Dim samochodySqlCeDataAdapter As New SqlCeDataAdapter("select marka from Samochody", dbConnection)
+            'samochodySqlCeDataAdapter = Nothing
+            'samochodySqlCeDataAdapter = New SqlCeDataAdapter("select * from Samochody", dbConnection)
+            'Dim samochodyDataTable As New DataTable ' nie wiem czy to potrzebne
+            samochodyDataTable = New DataTable
+
+            samochodySqlCeDataAdapter = Nothing
+            samochodySqlCeDataAdapter = New SqlCeDataAdapter("select * from Samochody", dbConnection)
+
+            Dim commandBuilder As New SqlCeCommandBuilder(samochodySqlCeDataAdapter)
+
+            samochodyDataSet = Nothing
+            samochodyDataSet = New DataSet()
+
+            TextBoxid.DataBindings.Clear()
+            TextBoxBrand.DataBindings.Clear()
+            TextBoxModel.DataBindings.Clear()
+            TextBoxEngine.DataBindings.Clear()
+            TextBoxColour.DataBindings.Clear()
+            TextBoxYear.DataBindings.Clear()
+            TextBoxPrice.DataBindings.Clear()
+
+
+            Try
+                samochodySqlCeDataAdapter.Fill(samochodyDataSet, "samochody") ' to jakos dzia³a
+                'samochodySqlCeDataAdapter.Fill(samochodyDataSet)
+                'samochodySqlCeDataAdapter.Fill(samochodyDataTable) ' to dzia³a!!!
+
+            Catch ex As Exception
+                MessageBox.Show(ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+
+            samochodyDataTable.Locale = System.Globalization.CultureInfo.InvariantCulture ' to dzia³a!!!
+            'BindingSourceSamochody.DataSource = samochodyDataTable ' to dzia³a!!!
+
+            BindingSourceSamochody.DataSource = samochodyDataSet ' to jakoœ dzia³a
+            BindingSourceSamochody.DataMember = "samochody" ' to dzia³a 
+            'BindingSourceSamochody.DataMember = samochodyDataSet.Tables(0).Columns(1).ToString
+
+            'DataGridViewSamochody.DataSource = BindingSourceSamochody.DataSource 'to nie dzia³a
+            'DataGridViewSamochody.DataBindings.Add(BindingSourceSamochody)
+            'DataGridViewSamochody.DataSource = BindingSourceSamochody
+            'DataGridViewSamochody.DataBindings.Add(New Binding("DataSource", BindingSourceSamochody, "samochody"))
+            'DataGridViewSamochody.DataSource = samochodyDataSet
+            DataGridViewSamochody.DataSource = samochodyDataTable
+
+            DataGridViewSamochody.Refresh()
+
+
+            'TextBoxid.DataBindings.Add("Id", BindingSourceSamochody, "Id")    'BindingSourceSamochody - Id 'to sie jebie
+            'TextBoxid.DataBindings.Add(new Binding("Text", BindingSourceSamochody, "Id", true))
+            TextBoxid.DataBindings.Add(New Binding("Text", BindingSourceSamochody, "Id", True)) ' to dzia³a!!!
+            TextBoxBrand.DataBindings.Add(New Binding("Text", BindingSourceSamochody, "marka", True))
+            TextBoxModel.DataBindings.Add(New Binding("Text", BindingSourceSamochody, "model", True))
+            TextBoxEngine.DataBindings.Add(New Binding("Text", BindingSourceSamochody, "silnik", True))
+            TextBoxColour.DataBindings.Add(New Binding("Text", BindingSourceSamochody, "kolor", True))
+            TextBoxYear.DataBindings.Add(New Binding("Text", BindingSourceSamochody, "rok", True))
+            TextBoxPrice.DataBindings.Add(New Binding("Text", BindingSourceSamochody, "cena", True))
+
+            'TextBoxid.DataBindings.Add(New Binding("Text", samochodyDataSet, "Id", True)) ' to nie dzia³a!!!
+            'TextBoxBrand.DataBindings.Add(New Binding("Text", samochodyDataSet, "marka", True))
+            'TextBoxModel.DataBindings.Add(New Binding("Text", samochodyDataSet, "model", True))
+            'TextBoxEngine.DataBindings.Add(New Binding("Text", samochodyDataSet, "silnik", True))
+            'TextBoxColour.DataBindings.Add(New Binding("Text", samochodyDataSet, "kolor", True))
+            'TextBoxYear.DataBindings.Add(New Binding("Text", samochodyDataSet, "rok", True))
+            'TextBoxPrice.DataBindings.Add(New Binding("Text", samochodyDataSet, "cena", True))
+
+            'TextBoxid.DataBindings.Add(New Binding("Text", samochodyDataTable, "Id", True)) ' to nie dzia³a!!!
+            'TextBoxBrand.DataBindings.Add(New Binding("Text", samochodyDataTable, "marka", True))
+            'TextBoxModel.DataBindings.Add(New Binding("Text", samochodyDataTable, "model", True))
+            'TextBoxEngine.DataBindings.Add(New Binding("Text", samochodyDataTable, "silnik", True))
+            'TextBoxColour.DataBindings.Add(New Binding("Text", samochodyDataTable, "kolor", True))
+            'TextBoxYear.DataBindings.Add(New Binding("Text", samochodyDataTable, "rok", True))
+            'TextBoxPrice.DataBindings.Add(New Binding("Text", samochodyDataTable, "cena", True))
+
+        End If
+
+
+
+    End Sub
+
+
+
+
+SqlCeConnection con = new SqlCeConnection("Data Source=(nazwa_bazy_danych)).sdf");
+SqlCeCommand cmd = new SqlCeCommand("SELECT * FROM Nazwa_Tabeli", con);
+con.Open();
+SqlCeDataAdapter dataAdapter = new SqlCeDataAdapter(cmd);
+DataSet dataSet = new DataSet();
+dataAdapter.Fill(dataSet, "Nazwa_Tabeli");
+BindingSource myBind = new BindingSource(dataSet, "Nazwa_Tabeli");
+dataGridView1.DataSource = myBind;
